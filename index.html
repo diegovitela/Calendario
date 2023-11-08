@@ -1,0 +1,397 @@
+<style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      color: #333333;
+    }
+  
+    .button {
+  height: 50px;
+  width: 200px;
+  position: relative;
+  background-color: transparent;
+  cursor: pointer;
+  border: 2px solid #252525;
+  overflow: hidden;
+  border-radius: 30px;
+  color: #333;
+  transition: all 0.5s ease-in-out;
+}
+
+.btn-txt {
+  z-index: 1;
+  font-weight: 800;
+  letter-spacing: 4px;
+}
+
+.type1::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: all 0.5s ease-in-out;
+  background-color: #333;
+  border-radius: 30px;
+  visibility: hidden;
+  height: 10px;
+  width: 10px;
+  z-index: -1;
+}
+
+.button:hover {
+  box-shadow: 1px 1px 200px #252525;
+  color: #fff;
+  border: none;
+}
+
+.type1:hover::after {
+  visibility: visible;
+  transform: scale(100) translateX(2px);
+}
+  
+    .card {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 4px;
+      max-width: 600px;
+      margin-top: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  
+    .card-header {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  
+    .card-content {
+      font-size: 14px;
+    }
+
+    .day-section {
+  margin-top: 30px;
+}
+
+.day-header {
+  background-color: #e7e7e7;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
+}
+
+.week-container {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  gap: 10px;
+}
+
+.day-column {
+  background-color: #e7e7e7;
+  border-radius: 4px;
+  padding: 10px;
+  min-height: 200px; /* Ajusta según tus necesidades */
+}
+
+.day-name {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.event-info {
+  background-color: #fff;
+  margin: 5px 0;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.week-container {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.day-column {
+  background-color: #ffffff;
+  border-radius: 4px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease-in-out;
+}
+
+.day-column:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.day-name {
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333333;
+  font-size: 22px;
+}
+
+.event-info {
+  background-color: #f7f7f7;
+  margin: 10px 0;
+  padding: 10px;
+  border-left: 5px solid #333333;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  color: #333;
+  text-align: left;
+  transition: background-color 0.3s;
+}
+
+.event-info:hover {
+  background-color: #eef4ff;
+}
+
+.event-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.event-time {
+  color: #777;
+  font-style: italic;
+}
+
+
+  </style>
+  
+
+
+  <head>
+    <title>Citas UP</title>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+        color: #333333;
+      }
+      .title {
+        font-size: 48px;
+        color: #333; 
+        font-weight: bold; 
+        text-align: center; 
+        margin-bottom: 20px; 
+
+      }
+
+    </style>
+  </head>
+  <body>
+    <p class="title">Citas UP</p>
+    <img src="" alt="">
+    <button id="authorize_button" class="button type1" onclick="handleAuthClick()">
+        <span class="btn-txt">Authorize</span>
+      </button>
+      <button id="signout_button" class="button type1" onclick="handleSignoutClick()">
+        <span class="btn-txt">Sign Out</span>
+      </button>
+    
+      <pre id="content" style="white-space: pre-wrap;"></pre>
+
+    <script type="text/javascript">
+
+      const CLIENT_ID = 'YOUR_CLIENT_ID';
+      const API_KEY = 'YOUR_API_KEY';
+      const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+
+     
+      const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+
+      let tokenClient;
+      let gapiInited = false;
+      let gisInited = false;
+
+      document.getElementById('authorize_button').style.visibility = 'hidden';
+      document.getElementById('signout_button').style.visibility = 'hidden';
+      function gapiLoaded() {
+        gapi.load('client', initializeGapiClient);
+      }
+      async function initializeGapiClient() {
+        await gapi.client.init({
+          apiKey: API_KEY,
+          discoveryDocs: [DISCOVERY_DOC],
+        });
+        gapiInited = true;
+        maybeEnableButtons();
+      }
+      function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: '', 
+        });
+        gisInited = true;
+        maybeEnableButtons();
+      }
+      function maybeEnableButtons() {
+        if (gapiInited && gisInited) {
+          document.getElementById('authorize_button').style.visibility = 'visible';
+        }
+      }
+      function handleAuthClick() {
+        tokenClient.callback = async (resp) => {
+          if (resp.error !== undefined) {
+            throw (resp);
+          }
+          document.getElementById('signout_button').style.visibility = 'visible';
+          document.getElementById('authorize_button').innerText = 'Refresh';
+          await listUpcomingEvents();
+        };
+
+        if (gapi.client.getToken() === null) {
+          tokenClient.requestAccessToken({prompt: 'consent'});
+        } else {
+          tokenClient.requestAccessToken({prompt: ''});
+        }
+      }
+      function handleSignoutClick() {
+        const token = gapi.client.getToken();
+        if (token !== null) {
+          google.accounts.oauth2.revoke(token.access_token);
+          gapi.client.setToken('');
+          document.getElementById('content').innerText = '';
+          document.getElementById('authorize_button').innerText = 'Authorize';
+          document.getElementById('signout_button').style.visibility = 'hidden';
+        }
+      }
+       async function listUpcomingEvents() {
+  let response;
+  try {
+    const request = {
+      'calendarId': 'primary',
+      'timeMin': (new Date()).toISOString(),
+      'showDeleted': false,
+      'singleEvents': true,
+      'maxResults': 10,
+      'orderBy': 'startTime',
+    };
+    response = await gapi.client.calendar.events.list(request);
+  } catch (err) {
+    document.getElementById('content').innerText = err.message;
+    return;
+  }
+
+  const events = response.result.items;
+  if (!events || events.length == 0) {
+    document.getElementById('content').innerText = 'No upcoming events.';
+    return;
+  }
+
+  const weekContainer = document.createElement('div');
+  weekContainer.className = 'week-container';
+
+  // Object to hold events for each day of the week
+  const days = { 'Monday': [], 'Tuesday': [], 'Wednesday': [], 'Thursday': [], 'Friday': [], 'Saturday': [], 'Sunday': [] };
+
+  // Fill the days object with events
+  events.forEach(event => {
+    const eventDate = new Date(event.start.dateTime || event.start.date);
+    const dayName = eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+    days[dayName].push(event);
+  });
+
+  // Generate the weekly view
+  Object.keys(days).forEach(day => {
+    const dayColumn = document.createElement('div');
+    dayColumn.className = 'day-column';
+
+    const dayNameElement = document.createElement('div');
+    dayNameElement.className = 'day-name';
+    dayNameElement.textContent = day;
+    dayColumn.appendChild(dayNameElement);
+
+    days[day].forEach(event => {
+      const eventInfo = document.createElement('div');
+      eventInfo.className = 'event-info';
+      eventInfo.textContent = `${event.summary} - ${event.start.dateTime || event.start.date}`;
+      dayColumn.appendChild(eventInfo);
+    });
+
+    if (days[day].length === 0) {
+      const noEvents = document.createElement('div');
+      noEvents.className = 'event-info';
+      noEvents.textContent = 'No events';
+      dayColumn.appendChild(noEvents);
+    }
+
+    weekContainer.appendChild(dayColumn);
+  });
+
+  // Clear previous content and add the new weekly view
+  document.getElementById('content').innerHTML = '';
+  document.getElementById('content').appendChild(weekContainer);
+}
+Object.keys(days).forEach(day => {
+    const dayColumn = document.createElement('div');
+    dayColumn.className = 'day-column';
+
+    const dayNameElement = document.createElement('div');
+    dayNameElement.className = 'day-name';
+    dayNameElement.textContent = day;
+    dayColumn.appendChild(dayNameElement);
+
+    days[day].forEach(event => {
+      const eventInfo = document.createElement('div');
+      eventInfo.className = 'event-info';
+
+      const eventTitle = document.createElement('div');
+      eventTitle.className = 'event-title';
+      eventTitle.textContent = event.summary;
+      eventInfo.appendChild(eventTitle);
+
+      const eventTime = document.createElement('div');
+      eventTime.className = 'event-time';
+      const startDate = new Date(event.start.dateTime || event.start.date);
+      eventTime.textContent = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      eventInfo.appendChild(eventTime);
+
+      dayColumn.appendChild(eventInfo);
+    });
+
+    if (days[day].length === 0) {
+      const noEvents = document.createElement('div');
+      noEvents.className = 'event-info';
+      noEvents.textContent = 'No events';
+      dayColumn.appendChild(noEvents);
+    }
+
+    weekContainer.appendChild(dayColumn);
+  });
+
+  // Clear previous content and add the new weekly view
+  document.getElementById('content').innerHTML = '';
+  document.getElementById('content').appendChild(weekContainer);
+
+
+
+
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+  </body>
+</html>
